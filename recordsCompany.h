@@ -2,15 +2,24 @@
 #define RECORDS_COMPANY_H
 
 #include "utilesWet2.h"
-
-
+#include "Customer.h"
+#include "HashTable.h"
+#include "Record.h"
+#include "Tree.h"
+#include "UnionFind.h"
+#include <memory>
 
 class RecordsCompany {
   private:
-    // todo
+    HashTable<int, std::shared_ptr<Customer>> m_customers;
+    Tree<int, std::shared_ptr<Customer>> m_clubMembers;
+    std::shared_ptr<Record>* m_records;
+    UnionFind m_recordsUF;
+    int m_numberOfRecords;
+
   public:
     RecordsCompany();
-    ~RecordsCompany();
+    ~RecordsCompany() = default;
     StatusType newMonth(int *records_stocks, int number_of_records);
     StatusType addCostumer(int c_id, int phone);
     Output_t<int> getPhone(int c_id);
