@@ -313,15 +313,20 @@ Node<Key, Value> *Tree<Key, Value>::getRoot() const
 template<class Key, class Value>
 void Tree<Key, Value>::updateExtraOnLeftRotation(Node<Key, Value> *current)
 {
+    double oldExtraRightSon;
     Node<Key, Value>* rightSon = current->getRight();
     if (rightSon != nullptr)
-
+        oldExtraRightSon = current->getRight()->getExtra();
     double oldExtraRoot = current->getExtra();
-    double oldExtraRightSon = current->getRight()->getExtra();
 
-    current->getRight()->getLeft()->setExtra(oldExtraRightSon);
-    current->getRight()->setExtra(oldExtraRoot);
-    current->setExtra(current->getRight()->getExtra());
+    Node<Key, Value>* rightLeftSon = current->getRight()->getLeft();
+    if (rightLeftSon != nullptr)
+        rightLeftSon->setExtra(oldExtraRightSon);
+
+    if (rightSon != nullptr) {
+        rightSon->setExtra(oldExtraRoot);
+        current->setExtra(rightSon->getExtra());
+    }
 }
 
 template<class Key, class Value>
@@ -344,14 +349,15 @@ Node<Key, Value>* Tree<Key, Value>::rotateLeft(Node<Key, Value>* current)
 template<class Key, class Value>
 void Tree<Key, Value>::updateExtraOnRightRotation(Node<Key, Value> *current)
 {
+    double oldExtraLeftSon;
     Node<Key, Value>* leftSon = current->getLeft();
     if (leftSon != nullptr)
-        double oldExtraLeftSon = current->getLeft()->getExtra();
+        oldExtraLeftSon = current->getLeft()->getExtra();
     double oldExtraRoot = current->getExtra();
 
     Node<Key, Value>* leftRightSon = current->getLeft()->getRight();
     if (leftRightSon != nullptr)
-        leftRightSon->setExtra(oldExtraRoot);
+        leftRightSon->setExtra(oldExtraLeftSon);
 
     if (leftSon != nullptr) {
         leftSon->setExtra(oldExtraRoot);
