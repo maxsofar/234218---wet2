@@ -20,7 +20,7 @@ public:
     int m_r;
 };
 
-//TODO: check if class needed or replace with array
+//TODO: probably class is not needed, replace with array
 class RecordNode {
 public:
     RecordNode() : m_parent(-1) {}
@@ -38,7 +38,8 @@ public:
 private:
     StackNode* m_stack;
     //contains an actual parent
-    RecordNode* m_record;
+//    RecordNode* m_parent;
+    int* m_parent;
 };
 
 
