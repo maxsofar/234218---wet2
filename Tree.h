@@ -43,6 +43,8 @@ public:
     std::pair<double, bool> sumUpExtra(const Key& id);
     void resetExpenses(Node<Key, Value>* current);
 
+    void updateExtraAfterInsert(const Key& id);
+
     Value& getMinNodeValue() const;
 
 
@@ -83,6 +85,7 @@ void Tree<Key, Value>::resetExpenses(Node<Key, Value> *current)
 
     resetExpenses(current->getLeft());
     current->getValue()->resetExpenses();
+    current->newMonthNullify();
     resetExpenses(current->getRight());
 }
 
@@ -102,6 +105,31 @@ std::pair<double, bool> Tree<Key, Value>::sumUpExtra(const Key &id)
             current = current->getRight();
     }
     return std::make_pair(sum, false);
+}
+
+template<class Key, class Value>
+void Tree<Key, Value>::updateExtraAfterInsert(const Key &id)
+{
+    int sumOfExtra = 0;
+    Node<Key, Value> *current = this->getRoot();
+    while (current != nullptr)
+    {
+        if (current->getKey() == id)
+        {
+            current->setExtra(-sumOfExtra);
+            return;
+        }
+        else if (current->getKey() > id)
+        {
+            sumOfExtra += current->getExtra();
+            current = current->getLeft();
+        }
+        else
+        {
+            sumOfExtra += current->getExtra();
+            current = current->getRight();
+        }
+    }
 }
 
 template<class Key, class Value>
@@ -175,23 +203,7 @@ void Tree<Key, Value>::updateExtraLeft(Node<Key, Value> *current, const int &id,
     if (current == nullptr)
         return;
 
-    if (id > current->getKey()) {
-        if (prevTurn == 1) {
-            if (current->getRight() == nullptr)
-                return;
-            updateExtraLeft(current->getRight(), id, amount, 1);
-        }
-        else {
-            if (current->getRight() == nullptr) {
-                current->setExtra(amount);
-                if (current->getLeft() != nullptr)
-                    current->getLeft()->setExtra(-amount);
-                return;
-            }
-            current->setExtra(amount);
-            updateExtraLeft(current->getLeft(), id, amount, 1);
-        }
-    } else if (id < current->getKey()) {
+    if (id < current->getKey()) {
         if (prevTurn == -1) {
             if (current->getLeft() == nullptr)
                 return;
@@ -199,18 +211,26 @@ void Tree<Key, Value>::updateExtraLeft(Node<Key, Value> *current, const int &id,
         }
         else {
             if (current->getLeft() == nullptr) {
+                current->setExtra(amount);
+                return;
+            }
+            current->setExtra(amount);
+            updateExtraLeft(current->getLeft(), id, amount, -1);
+        }
+    } else if (current->getKey() < id) {
+        if (prevTurn == 1) {
+            if (current->getRight() == nullptr)
+                return;
+            updateExtraLeft(current->getRight(), id, amount, 1);
+        }
+        else {
+            if (current->getRight() == nullptr) {
                 current->setExtra(-amount);
-                if (current->getRight() != nullptr)
-                    current->getRight()->setExtra(amount);
                 return;
             }
             current->setExtra(-amount);
-            updateExtraLeft(current->getRight(), id, amount, -1);
+            updateExtraLeft(current->getRight(), id, amount, 1);
         }
-    } else {
-        current->setExtra(amount);
-        if (current->getLeft() != nullptr)
-            current->getLeft()->setExtra(-amount);
     }
 }
 
@@ -220,7 +240,7 @@ void Tree<Key, Value>::updateExtraRight(Node<Key, Value> *current, const int &id
     if (current == nullptr)
         return;
 
-    if (id > current->getKey()) {
+    if (current->getKey() < id) {
         if (prevTurn == 1) {
             if (current->getRight() == nullptr)
                 return;
@@ -229,12 +249,10 @@ void Tree<Key, Value>::updateExtraRight(Node<Key, Value> *current, const int &id
         else {
             if (current->getRight() == nullptr) {
                 current->setExtra(amount);
-                if (current->getRight() != nullptr)
-                    current->getRight()->setExtra(-amount);
                 return;
             }
             current->setExtra(amount);
-            updateExtraRight(current->getLeft(), id, amount, 1);
+            updateExtraRight(current->getRight(), id, amount, 1);
         }
     } else if (id < current->getKey()) {
         if (prevTurn == -1) {
@@ -242,16 +260,13 @@ void Tree<Key, Value>::updateExtraRight(Node<Key, Value> *current, const int &id
                 return;
             updateExtraRight(current->getLeft(), id, amount, -1);
         }
-
         else {
             if (current->getLeft() == nullptr) {
-                current->setExtra(amount);
-                if (current->getRight() != nullptr)
-                    current->getRight()->setExtra(-amount);
+                current->setExtra(-amount);
                 return;
             }
             current->setExtra(-amount);
-            updateExtraRight(current->getRight(), id, amount, -1);
+            updateExtraRight(current->getLeft(), id, amount, -1);
         }
     } else {
         current->setExtra(amount);
@@ -313,20 +328,11 @@ Node<Key, Value> *Tree<Key, Value>::getRoot() const
 template<class Key, class Value>
 void Tree<Key, Value>::updateExtraOnLeftRotation(Node<Key, Value> *current)
 {
-    double oldExtraRightSon;
-    Node<Key, Value>* rightSon = current->getRight();
-    if (rightSon != nullptr)
-        oldExtraRightSon = current->getRight()->getExtra();
-    double oldExtraRoot = current->getExtra();
-
-    Node<Key, Value>* rightLeftSon = current->getRight()->getLeft();
-    if (rightLeftSon != nullptr)
-        rightLeftSon->setExtra(oldExtraRightSon);
-
-    if (rightSon != nullptr) {
-        rightSon->setExtra(oldExtraRoot);
-        current->setExtra(rightSon->getExtra());
-    }
+    double temp = current->getRight()->getExtra();
+    current->getRight()->setExtra(current->getExtra());
+    current->setExtra(-(current->getRight()->getExtra()));
+    if (current->getRight()->getLeft() != nullptr)
+        current->getRight()->getLeft()->setExtra(temp);
 }
 
 template<class Key, class Value>
@@ -335,6 +341,7 @@ Node<Key, Value>* Tree<Key, Value>::rotateLeft(Node<Key, Value>* current)
     Node<Key, Value>* rightSubTree = current->getRight();
     Node<Key, Value>* rightLeftSubTree = rightSubTree->getLeft();
 
+    //TODO: check if needed
     updateExtraOnLeftRotation(current);
 
     rightSubTree->setLeft(current);
@@ -349,20 +356,11 @@ Node<Key, Value>* Tree<Key, Value>::rotateLeft(Node<Key, Value>* current)
 template<class Key, class Value>
 void Tree<Key, Value>::updateExtraOnRightRotation(Node<Key, Value> *current)
 {
-    double oldExtraLeftSon;
-    Node<Key, Value>* leftSon = current->getLeft();
-    if (leftSon != nullptr)
-        oldExtraLeftSon = current->getLeft()->getExtra();
-    double oldExtraRoot = current->getExtra();
-
-    Node<Key, Value>* leftRightSon = current->getLeft()->getRight();
-    if (leftRightSon != nullptr)
-        leftRightSon->setExtra(oldExtraLeftSon);
-
-    if (leftSon != nullptr) {
-        leftSon->setExtra(oldExtraRoot);
-        current->setExtra(leftSon->getExtra());
-    }
+    double temp = current->getLeft()->getExtra();
+    current->getLeft()->setExtra(current->getExtra());
+    current->setExtra(-(current->getLeft()->getExtra()));
+    if (current->getLeft()->getRight() != nullptr)
+        current->getLeft()->getRight()->setExtra(temp);
 }
 
 template<class Key, class Value>
@@ -371,6 +369,7 @@ Node<Key, Value> *Tree<Key, Value>::rotateRight(Node<Key, Value> *current)
     Node<Key, Value>* leftSubTree = current->getLeft();
     Node<Key, Value>* leftRightSubTree = leftSubTree->getRight();
 
+    //TODO: check if needed
     updateExtraOnRightRotation(current);
 
     leftSubTree->setRight(current);
@@ -418,6 +417,20 @@ Node<Key, Value>* Tree<Key, Value>::insert(Node<Key, Value>* nodeToInsert ,Node<
 {
     if (current == nullptr) {
         this->m_size++;
+        // Set the extra field of the new node to be the negative of the sum of the extra values on the path to its parent
+        Node<Key, Value>* temp = this->getRoot();
+        int sum = 0;
+        while (temp != nullptr) {
+            sum += temp->getExtra();
+            if (nodeToInsert->getKey() < temp->getKey()) {
+                temp = temp->getLeft();
+            } else if (nodeToInsert->getKey() > temp->getKey()) {
+                temp = temp->getRight();
+            } else {
+                break;
+            }
+        }
+        nodeToInsert->setExtra(-sum);
         return nodeToInsert;
     }
 

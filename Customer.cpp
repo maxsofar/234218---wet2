@@ -33,7 +33,7 @@ int Customer::getID() const
     return m_c_id;
 }
 
-void Customer::resetExprenses()
+void Customer::resetExpenses()
 {
     m_monthlyExpenses = 0;
 }

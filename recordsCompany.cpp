@@ -27,6 +27,10 @@ StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records)
     }
 
     m_recordsUF.init(records_stocks, number_of_records);
+
+    m_customers.resetExpenses();
+    m_clubMembers.resetExpenses(m_clubMembers.getRoot());
+
     return SUCCESS;
 }
 
@@ -36,9 +40,12 @@ StatusType RecordsCompany::addCostumer(int c_id, int phone)
     if (c_id < 0 || phone < 0)
         return INVALID_INPUT;
 
-    //TODO: ALREADY EXISTS, ALLLOCATION ERROR
+    //TODO: ALLLOCATION ERROR
+    std::shared_ptr<Customer> customer = m_customers.find(c_id);
+    if (customer != nullptr)
+        return ALREADY_EXISTS;
 
-    std::shared_ptr<Customer> customer = std::make_shared<Customer>(c_id, phone);
+    customer = std::make_shared<Customer>(c_id, phone);
     m_customers.insert(c_id, customer);
 
     return SUCCESS;
@@ -81,7 +88,7 @@ StatusType RecordsCompany::makeMember(int c_id)
         return DOESNT_EXISTS;
 
     if (customer->isClubMember())
-        return FAILURE;
+        return ALREADY_EXISTS;
 
     customer->makeMember();
     m_clubMembers.insert(customer->getID(), customer);
@@ -127,12 +134,8 @@ Output_t<double> RecordsCompany::getExpenses(int c_id)
     std::pair<double, bool> expenses = m_clubMembers.sumUpExtra(c_id);
     if (!expenses.second)
         return Output_t<double>(DOESNT_EXISTS);
-    else {
-        //TODO: seems like not needed
-//        if (expenses.first < 0)
-//            return 0;
+    else
         return expenses.first;
-    }
 }
 
 //-------------------------------------------------------------
@@ -148,7 +151,8 @@ StatusType RecordsCompany::putOnTop(int r_id1, int r_id2)
 
     //TODO: allocation error
 
-    m_recordsUF.unionSets(r_id1, r_id2);
+    if(!m_recordsUF.unionSets(r_id1, r_id2))
+        return FAILURE;
 
     return SUCCESS;
 }

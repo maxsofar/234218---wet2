@@ -58,16 +58,16 @@ int UnionFind::find(int id, int* relativeHeight)
 }
 
 //weighted union function
-void UnionFind::unionSets(int id1, int id2)
+bool UnionFind::unionSets(int id1, int id2)
 {
     int B = find(id1, nullptr);
     int A = find(id2, nullptr);
     if (B == A)
-        return;
+        return false;
 
     m_stack[B].m_column = m_stack[A].m_column;
 
-    if (m_stack[B].m_rank <= m_stack[A].m_rank) {
+    if (m_stack[A].m_rank >= m_stack[B].m_rank ) {
         m_record[B].m_parent = A;
 
         m_stack[A].m_rank++;
@@ -83,6 +83,7 @@ void UnionFind::unionSets(int id1, int id2)
 
     }
 
+    return true;
 }
 
 std::pair<int, int> UnionFind::getPlace(int id) {

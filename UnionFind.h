@@ -33,8 +33,8 @@ public:
     ~UnionFind();
     void init(int* recordsStocks, int numberOfRecords);
     int find(int id, int* relativeHeight);
-    void unionSets(int id1, int id2);
-    std::__1::pair<int, int> getPlace(int id);
+    bool unionSets(int id1, int id2);
+    std::pair<int, int> getPlace(int id);
 private:
     StackNode* m_stack;
     //contains an actual parent
