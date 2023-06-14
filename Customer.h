@@ -15,7 +15,7 @@ public:
     void makeMember();
     void buyRecord(int t);
     int getID() const;
-    void resetExprenses();
+    void resetExpenses();
     double getExpenses() const;
 private:
     int m_c_id;
