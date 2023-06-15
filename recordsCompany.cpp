@@ -7,7 +7,7 @@
 
 
 //O(1)
-RecordsCompany::RecordsCompany() : m_numberOfRecords(0), m_records(nullptr)
+RecordsCompany::RecordsCompany() : m_records(nullptr), m_numberOfRecords(0)
 {}
 
 //O(n + m) m = number_of_records
