@@ -28,7 +28,7 @@ StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records)
 
     m_recordsUF.init(records_stocks, number_of_records);
 
-    m_customers.resetExpenses();
+//    m_customers.resetExpenses();
     m_clubMembers.resetExpenses(m_clubMembers.getRoot());
 
     return SUCCESS;
