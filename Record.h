@@ -8,15 +8,14 @@
 
 class Record {
 public:
-    Record(int r_id, int numOfCopies);
+    Record(int r_id);
     ~Record() = default;
     int getNumOfPurchases() const;
     void buyRecord();
 
 private:
     int m_r_id;
-    //TODO: probably not needed used only in UF
-    int mNumOfCopies;
+//    int mNumOfCopies;
     int mNumOfPurchases;
 };
 

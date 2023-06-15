@@ -4,7 +4,7 @@
 
 #include "Record.h"
 
-Record::Record(int r_id, int numOfCopies) : m_r_id(r_id), mNumOfCopies(numOfCopies){}
+Record::Record(int r_id) : m_r_id(r_id), mNumOfPurchases(0){}
 
 void Record::buyRecord()
 {
