@@ -23,7 +23,7 @@ StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records)
     //TODO: ALLOCATION ERROR
 
     for (int i = 0; i < number_of_records; ++i) {
-        m_records[i] = std::make_shared<Record>(i, records_stocks[i]);
+        m_records[i] = std::make_shared<Record>(i);
     }
 
     m_recordsUF.init(records_stocks, number_of_records);
