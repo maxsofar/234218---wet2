@@ -19,6 +19,7 @@ public:
     void remove(K key);
     void resetExpenses();
 private:
+    //TODO: change to dynamic
     const int m_primes[10] = {11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421};
     int m_size;
     int m_capacity;

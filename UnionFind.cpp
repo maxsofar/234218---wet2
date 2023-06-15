@@ -22,6 +22,8 @@ UnionFind::~UnionFind()
 
 void UnionFind::init(int* m_recordStocks, int number_of_m_record)
 {
+    delete[] m_stack;
+    delete[] m_parent;
     m_stack = new StackNode[number_of_m_record];
 //    m_parent = new RecordNode[number_of_m_record];
     m_parent = new int[number_of_m_record];

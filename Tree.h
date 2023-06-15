@@ -40,12 +40,11 @@ public:
     void inOrder(Node<Key, Value>* current, Tree<Key, Value>* newTable,
                  std::function<size_t(const Key&)> hash_function);
     void inOrderNullify(Node<Key, Value>* current);
-    std::pair<double, bool> sumUpExtra(const Key& id);
+//    std::pair<double, bool> sumUpExtra(const Key& id);
+    bool sumUpExtra(const Key& id, double* sum);
     void resetExpenses(Node<Key, Value>* current);
 
-    void updateExtraAfterInsert(const Key& id);
-
-    Value& getMinNodeValue() const;
+//    void updateExtraAfterInsert(const Key& id);
 
 
 
@@ -89,48 +88,67 @@ void Tree<Key, Value>::resetExpenses(Node<Key, Value> *current)
     resetExpenses(current->getRight());
 }
 
+//template<class Key, class Value>
+//std::pair<double, bool> Tree<Key, Value>::sumUpExtra(const Key &id)
+//{
+//    double sum = 0;
+//    Node<Key, Value>* current = this->getRoot();
+//    while (current != nullptr)
+//    {
+//        sum += current->getExtra();
+//        if (current->getKey() == id)
+//            return std::make_pair(current->getValue()->getExpenses() - sum, true);
+//        else if (current->getKey() > id)
+//            current = current->getLeft();
+//        else
+//            current = current->getRight();
+//    }
+//    return std::make_pair(sum, false);
+//}
+
 template<class Key, class Value>
-std::pair<double, bool> Tree<Key, Value>::sumUpExtra(const Key &id)
+bool Tree<Key, Value>::sumUpExtra(const Key &id, double* sum)
 {
-    double sum = 0;
     Node<Key, Value>* current = this->getRoot();
     while (current != nullptr)
     {
-        sum += current->getExtra();
-        if (current->getKey() == id)
-            return std::make_pair(current->getValue()->getExpenses() - sum, true);
+        *sum += current->getExtra();
+        if (current->getKey() == id) {
+            *sum = current->getValue()->getExpenses() - *sum;
+            return true;
+        }
         else if (current->getKey() > id)
             current = current->getLeft();
         else
             current = current->getRight();
     }
-    return std::make_pair(sum, false);
+    return false;
 }
 
-template<class Key, class Value>
-void Tree<Key, Value>::updateExtraAfterInsert(const Key &id)
-{
-    int sumOfExtra = 0;
-    Node<Key, Value> *current = this->getRoot();
-    while (current != nullptr)
-    {
-        if (current->getKey() == id)
-        {
-            current->setExtra(-sumOfExtra);
-            return;
-        }
-        else if (current->getKey() > id)
-        {
-            sumOfExtra += current->getExtra();
-            current = current->getLeft();
-        }
-        else
-        {
-            sumOfExtra += current->getExtra();
-            current = current->getRight();
-        }
-    }
-}
+//template<class Key, class Value>
+//void Tree<Key, Value>::updateExtraAfterInsert(const Key &id)
+//{
+//    int sumOfExtra = 0;
+//    Node<Key, Value> *current = this->getRoot();
+//    while (current != nullptr)
+//    {
+//        if (current->getKey() == id)
+//        {
+//            current->setExtra(-sumOfExtra);
+//            return;
+//        }
+//        else if (current->getKey() > id)
+//        {
+//            sumOfExtra += current->getExtra();
+//            current = current->getLeft();
+//        }
+//        else
+//        {
+//            sumOfExtra += current->getExtra();
+//            current = current->getRight();
+//        }
+//    }
+//}
 
 template<class Key, class Value>
 void Tree<Key, Value>::inOrder(Node<Key, Value> *current, Tree<Key, Value>* newTable,
@@ -186,12 +204,6 @@ Node<Key, Value> *Tree<Key, Value>::findMin(Node<Key, Value> *current) const
 }
 
 template<class Key, class Value>
-Value& Tree<Key, Value>::getMinNodeValue() const
-{
-    return m_minNode->getValue();
-}
-
-template<class Key, class Value>
 int Tree<Key, Value>::getSize() const
 {
     return m_size;
@@ -231,6 +243,15 @@ void Tree<Key, Value>::updateExtraLeft(Node<Key, Value> *current, const int &id,
             current->setExtra(-amount);
             updateExtraLeft(current->getRight(), id, amount, 1);
         }
+    } else {
+        if (prevTurn == -1) {
+            if (current->getLeft() != nullptr)
+                current->getLeft()->setExtra(-amount);
+        } else {
+            current->setExtra(amount);
+            if (current->getLeft() != nullptr)
+                current->getLeft()->setExtra(-amount);
+        }
     }
 }
 
@@ -269,9 +290,17 @@ void Tree<Key, Value>::updateExtraRight(Node<Key, Value> *current, const int &id
             updateExtraRight(current->getLeft(), id, amount, -1);
         }
     } else {
-        current->setExtra(amount);
-        if (current->getRight() != nullptr)
-            current->getRight()->setExtra(-amount);
+//        current->setExtra(amount);
+//        if (current->getRight() != nullptr)
+//            current->getRight()->setExtra(-amount);
+        if(prevTurn == 1) {
+            current->setExtra(-amount);
+            if(current->getLeft() != nullptr)
+                current->getLeft()->setExtra(amount);
+        } else {
+            if (current->getLeft() != nullptr)
+                current->getLeft()->setExtra(amount);
+        }
     }
 }
 
@@ -291,9 +320,21 @@ void Tree<Key, Value>::addPrizeAux(Node<Key, Value> *current, const int &id1, co
     }
     else
     {
-        current->setExtra(amount);
-        updateExtraLeft(current->getLeft(), id1, amount, -1);
-        updateExtraRight(current->getRight(), id2, amount, 1);
+        if (current->getKey() == id1) {
+            current->setExtra(amount);
+            if (current->getLeft() != nullptr)
+                current->getLeft()->setExtra(-amount);
+            updateExtraRight(current->getRight(), id2, amount, 1);
+        } else if (current->getKey() == id2) {
+            if (current->getLeft() != nullptr) {
+                current->getLeft()->setExtra(amount);
+                updateExtraLeft(current->getLeft(), id1, amount, -1);
+            }
+        } else {
+            current->setExtra(amount);
+            updateExtraLeft(current->getLeft(), id1, amount, -1);
+            updateExtraRight(current->getRight(), id2, amount, 1);
+        }
     }
 }
 
