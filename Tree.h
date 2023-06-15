@@ -6,7 +6,8 @@
 #define WET1_TREE_H
 
 #include "Node.h"
-#include "memory"
+#include <memory>
+#include <functional>
 
 template <typename Key, typename Value> class HashTable;
 

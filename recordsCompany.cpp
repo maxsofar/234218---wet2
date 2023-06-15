@@ -5,8 +5,9 @@
 #include "recordsCompany.h"
 #include <utility>
 
+
 //O(1)
-RecordsCompany::RecordsCompany() : m_numberOfRecords(0)
+RecordsCompany::RecordsCompany() : m_numberOfRecords(0), m_records(nullptr)
 {}
 
 //O(n + m) m = number_of_records
