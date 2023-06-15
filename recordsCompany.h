@@ -19,7 +19,7 @@ class RecordsCompany {
 
   public:
     RecordsCompany();
-    ~RecordsCompany() = default;
+    ~RecordsCompany();
     StatusType newMonth(int *records_stocks, int number_of_records);
     StatusType addCostumer(int c_id, int phone);
     Output_t<int> getPhone(int c_id);

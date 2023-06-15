@@ -19,7 +19,6 @@ public:
     void remove(K key);
     void resetExpenses();
 private:
-    const int m_primes[10] = {11, 23, 47, 97, 197, 397, 797, 1597, 3203, 6421};
     int m_size;
     int m_capacity;
     Tree<K, V>* m_table;
@@ -29,7 +28,8 @@ private:
 };
 
 template<class K, class V>
-HashTable<K, V>::HashTable() : m_size(0), m_capacity(m_primes[0]), m_table(new Tree<K, V>[m_primes[0]]) {}
+HashTable<K, V>::HashTable() : m_size(0), m_capacity(10), m_table(new Tree<K, V>[10])
+{}
 
 template<class K, class V>
 HashTable<K, V>::~HashTable()
@@ -81,15 +81,7 @@ template<class K, class V>
 void HashTable<K, V>::resize()
 {
     int oldCapacity = m_capacity;
-    m_capacity = m_primes[0];
-    for (int i = 0; i < 10; ++i)
-    {
-        if (m_primes[i] > oldCapacity)
-        {
-            m_capacity = m_primes[i];
-            break;
-        }
-    }
+    m_capacity *= 2;
     auto hash = [this](K key){return this->hash(key);};
     auto* newTable = new Tree<K, V>[m_capacity];
     for (int i = 0; i < oldCapacity; ++i)

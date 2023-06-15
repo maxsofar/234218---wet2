@@ -5,8 +5,9 @@
 #include "recordsCompany.h"
 #include <utility>
 
+
 //O(1)
-RecordsCompany::RecordsCompany() : m_numberOfRecords(0)
+RecordsCompany::RecordsCompany() : m_records(nullptr), m_numberOfRecords(0)
 {}
 
 //O(n + m) m = number_of_records
@@ -22,13 +23,12 @@ StatusType RecordsCompany::newMonth(int *records_stocks, int number_of_records)
     //TODO: ALLOCATION ERROR
 
     for (int i = 0; i < number_of_records; ++i) {
-        //TODO: probably shared ptr not needed here
-        m_records[i] = std::make_shared<Record>(i, records_stocks[i]);
+        m_records[i] = std::make_shared<Record>(i);
     }
 
     m_recordsUF.init(records_stocks, number_of_records);
 
-    m_customers.resetExpenses();
+//    m_customers.resetExpenses();
     m_clubMembers.resetExpenses(m_clubMembers.getRoot());
 
     return SUCCESS;
@@ -120,7 +120,8 @@ StatusType RecordsCompany::addPrize(int c_id1, int c_id2, double amount)
     if (c_id1 < 0 || c_id2 < c_id1 || amount <= 0)
         return INVALID_INPUT;
 
-
+    if (c_id1 == c_id2)
+        return SUCCESS;
     m_clubMembers.addPrize(c_id1, c_id2, amount);
 
     return SUCCESS;
@@ -129,13 +130,19 @@ StatusType RecordsCompany::addPrize(int c_id1, int c_id2, double amount)
 Output_t<double> RecordsCompany::getExpenses(int c_id)
 {
     if (c_id < 0)
-        return Output_t<double>(INVALID_INPUT);
+        return {INVALID_INPUT};
 
-    std::pair<double, bool> expenses = m_clubMembers.sumUpExtra(c_id);
-    if (!expenses.second)
-        return Output_t<double>(DOESNT_EXISTS);
+//    std::pair<double, bool> expenses = m_clubMembers.sumUpExtra(c_id);
+
+//    if (!expenses.second)
+//        return {DOESNT_EXISTS};
+//    else
+//        return expenses.first;
+    double expenses = 0;
+    if (!m_clubMembers.sumUpExtra(c_id, &expenses))
+        return {DOESNT_EXISTS};
     else
-        return expenses.first;
+        return {expenses};
 }
 
 //-------------------------------------------------------------
@@ -172,6 +179,11 @@ StatusType RecordsCompany::getPlace(int r_id, int *column, int *hight)
 
 
     return SUCCESS;
+}
+
+RecordsCompany::~RecordsCompany()
+{
+    delete[] m_records;
 }
 
 
