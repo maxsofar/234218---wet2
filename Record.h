@@ -5,18 +5,17 @@
 #ifndef WET2_RECORD_H
 #define WET2_RECORD_H
 
-
 class Record {
 public:
-    Record(int r_id);
+    Record();
     ~Record() = default;
+    const Record& operator=(const Record& other) = delete;
+    Record(const Record& other) = delete;
     int getNumOfPurchases() const;
     void buyRecord();
 
 private:
-    int m_r_id;
-//    int mNumOfCopies;
-    int mNumOfPurchases;
+    int m_numOfPurchases;
 };
 
 

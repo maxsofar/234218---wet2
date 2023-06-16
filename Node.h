@@ -103,16 +103,22 @@ Node<Key,Value>* Node<Key, Value>::getLeft() const
 template<class Key, class Value>
 int Node<Key, Value>::getBalanceFactor() const
 {
-    return (this->getLeft()->getHeight() - this->getRight()->getHeight());
+    int leftHeight, rightHeight;
+    if (this->getLeft() == nullptr)
+        leftHeight = -1;
+    else
+        leftHeight = this->getLeft()->getHeight();
+
+    if (this->getRight() == nullptr)
+        rightHeight = -1;
+    else
+        rightHeight = this->getRight()->getHeight();
+    return (leftHeight - rightHeight);
 }
 
 template <class Key, class Value>
 int Node<Key, Value>::getHeight() const
 {
-    if (this == nullptr)
-    {
-        return -1;
-    }
     return m_height;
 }
 
