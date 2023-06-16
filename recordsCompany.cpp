@@ -157,12 +157,8 @@ StatusType RecordsCompany::putOnTop(int r_id1, int r_id2)
     if (r_id1 >= m_numberOfRecords || r_id2 >= m_numberOfRecords)
         return DOESNT_EXISTS;
 
-    try {
-        if (!m_recordsUF.unionSets(r_id1, r_id2))
-            return FAILURE;
-    } catch (std::bad_alloc& e) {
-        return ALLOCATION_ERROR;
-    }
+    if (!m_recordsUF.unionSets(r_id1, r_id2))
+        return FAILURE;
 
     return SUCCESS;
 }
