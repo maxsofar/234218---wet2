@@ -4,14 +4,14 @@
 
 #include "Record.h"
 
-Record::Record(int r_id) : m_r_id(r_id), mNumOfPurchases(0){}
+Record::Record() : m_numOfPurchases(0){}
 
 void Record::buyRecord()
 {
-    mNumOfPurchases++;
+    m_numOfPurchases++;
 }
 
 int Record::getNumOfPurchases() const
 {
-    return mNumOfPurchases;
+    return m_numOfPurchases;
 }

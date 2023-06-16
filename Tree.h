@@ -28,12 +28,13 @@ public:
      */
     bool insert(const Key& key, const Value& value);
     bool remove(const Key& key);
-    int getSize() const;
     Node<Key, Value>* getRoot() const;
     void deleteTree(Node<Key, Value>* current);
     Node<Key, Value>* find(const Key& key, Node<Key, Value>* current) const;
     Node<Key, Value>* findMin(Node<Key, Value>* current) const;
-
+    /*
+     * RecordCompany adapted methods
+     */
     void addPrizeAux(Node<Key, Value> *current, const int &id1, const int &id2, const double &amount);
     void addPrize(const int &id1, const int &id2, const double &amount);
     void updateExtraLeft(Node<Key, Value> *current, const int &id, const double &amount, int prevTurn);
@@ -41,13 +42,8 @@ public:
     void inOrder(Node<Key, Value>* current, Tree<Key, Value>* newTable,
                  std::function<size_t(const Key&)> hash_function);
     void inOrderNullify(Node<Key, Value>* current);
-//    std::pair<double, bool> sumUpExtra(const Key& id);
     bool sumUpExtra(const Key& id, double* sum);
     void resetExpenses(Node<Key, Value>* current);
-
-//    void updateExtraAfterInsert(const Key& id);
-
-
 
 private:
     Node<Key, Value>* m_root;
@@ -89,24 +85,6 @@ void Tree<Key, Value>::resetExpenses(Node<Key, Value> *current)
     resetExpenses(current->getRight());
 }
 
-//template<class Key, class Value>
-//std::pair<double, bool> Tree<Key, Value>::sumUpExtra(const Key &id)
-//{
-//    double sum = 0;
-//    Node<Key, Value>* current = this->getRoot();
-//    while (current != nullptr)
-//    {
-//        sum += current->getExtra();
-//        if (current->getKey() == id)
-//            return std::make_pair(current->getValue()->getExpenses() - sum, true);
-//        else if (current->getKey() > id)
-//            current = current->getLeft();
-//        else
-//            current = current->getRight();
-//    }
-//    return std::make_pair(sum, false);
-//}
-
 template<class Key, class Value>
 bool Tree<Key, Value>::sumUpExtra(const Key &id, double* sum)
 {
@@ -125,31 +103,6 @@ bool Tree<Key, Value>::sumUpExtra(const Key &id, double* sum)
     }
     return false;
 }
-
-//template<class Key, class Value>
-//void Tree<Key, Value>::updateExtraAfterInsert(const Key &id)
-//{
-//    int sumOfExtra = 0;
-//    Node<Key, Value> *current = this->getRoot();
-//    while (current != nullptr)
-//    {
-//        if (current->getKey() == id)
-//        {
-//            current->setExtra(-sumOfExtra);
-//            return;
-//        }
-//        else if (current->getKey() > id)
-//        {
-//            sumOfExtra += current->getExtra();
-//            current = current->getLeft();
-//        }
-//        else
-//        {
-//            sumOfExtra += current->getExtra();
-//            current = current->getRight();
-//        }
-//    }
-//}
 
 template<class Key, class Value>
 void Tree<Key, Value>::inOrder(Node<Key, Value> *current, Tree<Key, Value>* newTable,
@@ -202,12 +155,6 @@ Node<Key, Value> *Tree<Key, Value>::findMin(Node<Key, Value> *current) const
         return current;
     }
     return findMin(current->getLeft());
-}
-
-template<class Key, class Value>
-int Tree<Key, Value>::getSize() const
-{
-    return m_size;
 }
 
 template<class Key, class Value>
@@ -291,9 +238,6 @@ void Tree<Key, Value>::updateExtraRight(Node<Key, Value> *current, const int &id
             updateExtraRight(current->getLeft(), id, amount, -1);
         }
     } else {
-//        current->setExtra(amount);
-//        if (current->getRight() != nullptr)
-//            current->getRight()->setExtra(-amount);
         if(prevTurn == 1) {
             current->setExtra(-amount);
             if(current->getLeft() != nullptr)
@@ -383,14 +327,18 @@ Node<Key, Value>* Tree<Key, Value>::rotateLeft(Node<Key, Value>* current)
     Node<Key, Value>* rightSubTree = current->getRight();
     Node<Key, Value>* rightLeftSubTree = rightSubTree->getLeft();
 
-    //TODO: check if needed
     updateExtraOnLeftRotation(current);
 
     rightSubTree->setLeft(current);
     current->setRight(rightLeftSubTree);
 
-    current->setHeight(max(current->getLeft()->getHeight(), current->getRight()->getHeight()) + 1);
-    rightSubTree->setHeight(max(rightSubTree->getLeft()->getHeight(), rightSubTree->getRight()->getHeight()) + 1);
+    int leftHeight = current->getLeft() == nullptr ? -1 : current->getLeft()->getHeight();
+    int rightHeight = current->getRight() == nullptr ? -1 : current->getRight()->getHeight();
+    current->setHeight(max(leftHeight, rightHeight) + 1);
+
+    leftHeight = rightSubTree->getLeft() == nullptr ? -1 : rightSubTree->getLeft()->getHeight();
+    rightHeight = rightSubTree->getRight() == nullptr ? -1 : rightSubTree->getRight()->getHeight();
+    rightSubTree->setHeight(max(leftHeight, rightHeight) + 1);
 
     return rightSubTree;
 }
@@ -411,14 +359,18 @@ Node<Key, Value> *Tree<Key, Value>::rotateRight(Node<Key, Value> *current)
     Node<Key, Value>* leftSubTree = current->getLeft();
     Node<Key, Value>* leftRightSubTree = leftSubTree->getRight();
 
-    //TODO: check if needed
     updateExtraOnRightRotation(current);
 
     leftSubTree->setRight(current);
     current->setLeft(leftRightSubTree);
 
-    current->setHeight(max(current->getLeft()->getHeight(), current->getRight()->getHeight()) + 1);
-    leftSubTree->setHeight(max(leftSubTree->getLeft()->getHeight(), leftSubTree->getRight()->getHeight()) + 1);
+    int leftHeight = current->getLeft() == nullptr ? -1 : current->getLeft()->getHeight();
+    int rightHeight = current->getRight() == nullptr ? -1 : current->getRight()->getHeight();
+    current->setHeight(max(leftHeight, rightHeight) + 1);
+
+    leftHeight = leftSubTree->getLeft() == nullptr ? -1 : leftSubTree->getLeft()->getHeight();
+    rightHeight = leftSubTree->getRight() == nullptr ? -1 : leftSubTree->getRight()->getHeight();
+    leftSubTree->setHeight(max(leftHeight, rightHeight) + 1);
 
     return leftSubTree;
 }
@@ -429,7 +381,9 @@ Node<Key, Value> *Tree<Key, Value>::balance(Node<Key, Value> *current)
     if (current == nullptr) {
         return current;
     }
-    current->setHeight(max(current->getLeft()->getHeight(), current->getRight()->getHeight()) + 1);
+    int leftHeight = current->getLeft() == nullptr ? -1 : current->getLeft()->getHeight();
+    int rightHeight = current->getRight() == nullptr ? -1 : current->getRight()->getHeight();
+    current->setHeight(max(leftHeight, rightHeight) + 1);
     int balanceFactor = current->getBalanceFactor();
 
     // Left heavy
