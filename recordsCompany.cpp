@@ -23,9 +23,9 @@ StatusType RecordsCompany::newMonth(int* records_stocks, int number_of_records)
     delete[] m_records;
 
     try {
-        m_records = new shared_ptr<Record>[number_of_records];
+        m_records = new int[number_of_records];
         for (int i = 0; i < number_of_records; ++i) {
-            m_records[i] = std::make_shared<Record>();
+            m_records[i] = 0;
         }
         m_recordsUF.init(records_stocks, number_of_records);
     } catch (std::bad_alloc& e) {
@@ -116,8 +116,8 @@ StatusType RecordsCompany::buyRecord(int c_id, int r_id)
     if (customer == nullptr)
         return DOESNT_EXISTS;
 
-    customer->buyRecord(m_records[r_id]->getNumOfPurchases());
-    m_records[r_id]->buyRecord();
+    customer->buyRecord(m_records[r_id]);
+    m_records[r_id]++;
 
     return SUCCESS;
 

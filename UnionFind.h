@@ -6,7 +6,6 @@
 #define WET2_UNIONFIND_H
 
 #include <utility>
-#include "Record.h"
 
 class StackNode {
 public:
