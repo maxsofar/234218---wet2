@@ -4,7 +4,6 @@
 #include "utilesWet2.h"
 #include "Customer.h"
 #include "HashTable.h"
-#include "Record.h"
 #include "Tree.h"
 #include "UnionFind.h"
 #include <memory>
@@ -13,7 +12,7 @@ class RecordsCompany {
   private:
     HashTable<int, std::shared_ptr<Customer>> m_customers;
     Tree<int, std::shared_ptr<Customer>> m_clubMembers;
-    std::shared_ptr<Record>* m_records;
+    int* m_records;
     UnionFind m_recordsUF;
     int m_numberOfRecords;
 
